@@ -1,28 +1,25 @@
 # Operational Intelligence Platform
 
-Offline-first analytics engines designed to automate analysis, detect operational risk patterns, and convert raw data into actionable intelligence.
-
----
+A collection of offline-first analytical engines designed to transform raw operational and behavioral data into predictive intelligence.
 
 ## Purpose
-This repository contains client-side analytical systems built to replace manual analysis workflows with automated decision-support tools.
+These systems automate root cause analysis, risk detection, and performance forecasting without relying on servers or external infrastructure.
 
-These tools focus on:
-- predictive insight
-- root cause detection
-- operational visibility
-- local data processing (no server dependency)
+## Core Principles
+- Client-side processing only
+- Zero data leakage
+- Instant analysis
+- Works in restricted environments
+
+## Included Systems
+- Analytics Engines
+- KPI Dashboards
+- Biometric Correlation Tools
+- Forensic Decision Engines
+
+## Tech Stack
+Vanilla JavaScript • Chart.js • SQL.js • SheetJS • Tailwind CSS
 
 ---
 
-## Architecture Principles
-- Offline-first design
-- Single-file deployment
-- Client-side processing
-- Zero external infrastructure
-- Immediate execution environment
-
----
-
-## Status
-Core modules will be added in structured releases.
+Built as part of an internal tools architecture portfolio demonstrating predictive analytics, operational modeling, and intelligent automation.
