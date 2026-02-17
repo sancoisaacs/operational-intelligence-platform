@@ -4,6 +4,7 @@
 ![Runtime](https://img.shields.io/badge/Runtime-Client--Side-1f2937?style=flat-square)
 ![Mode](https://img.shields.io/badge/Mode-Offline%20Capable-1f2937?style=flat-square)
 ![Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Backend-1f2937?style=flat-square)
+![Model](https://img.shields.io/badge/Model-Self%20Validating-1f2937?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-065f46?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-1f2937?style=flat-square)
 
@@ -13,7 +14,7 @@ Operational Analysis • Predictive Insight • Zero Infrastructure
 ---
 
 ## What It Does
-This application converts raw datasets into structured intelligence, enabling users to identify patterns, evaluate risk, and generate actionable strategic recommendations instantly.
+This application converts raw datasets into structured intelligence, enabling users to identify patterns, evaluate risk, forecast outcomes, and generate actionable strategic recommendations instantly.
 
 ---
 
@@ -32,32 +33,40 @@ This system removes friction between **data and decision**.
 ## Core Capabilities
 
 - Multi-file dataset ingestion (CSV, XLSX)
-- Pattern recognition and trend analysis
-- Predictive modeling with regression logic
+- Automatic dataset classification
+- Smart dataset alignment + validation
+- Pattern recognition and trend detection
+- Regression-based predictive modeling
+- Confidence scoring for model reliability
 - Risk scoring matrix
 - Cross-variable correlation analysis
 - Strategic recommendation engine
-- Forecast simulation
-- Export to PDF, Excel, CSV
+- Forecast simulation engine
+- Export to Excel reports
 
 ---
 
 ## How It Works
 
 1. User inputs datasets
-2. Intelligence engine parses and analyzes data
-3. Models calculate patterns, correlations, and risk
-4. System produces insights and recommendations
+2. Parsing engine standardizes formats
+3. Alignment engine joins datasets safely
+4. Intelligence engine runs analytics
+5. Reliability layer evaluates model trustworthiness
+6. System produces insights and recommendations
 
 ---
 
 ## Key Systems / Modules
 
 - Parsing Engine
+- Dataset Classification Layer
+- Alignment Engine
 - Intelligence Engine
 - Pattern Detection Module
 - Risk Evaluation System
 - Forecast Engine
+- Reliability Validator
 - Visualization Layer
 - Export Engine
 
@@ -66,7 +75,7 @@ This system removes friction between **data and decision**.
 ## Architecture
 
 **Architecture Model:**  
-Deterministic-First Offline Intelligence Engine
+Deterministic-First Offline Intelligence Engine with Self-Validation Layer
 
 Principles:
 
@@ -74,7 +83,9 @@ Principles:
 - No external infrastructure
 - Instant runtime
 - Portable deployment
-- Deterministic output logic
+- Deterministic outputs
+- Built-in statistical validation
+- Graceful failure handling
 
 ---
 
@@ -95,8 +106,9 @@ jsPDF
 - Runs offline
 - Handles large datasets
 - No installation required
-- Compatible with restricted environments
-- Zero server dependency
+- Works in restricted environments
+- Adaptive rendering based on available data
+- Regression stability safeguards
 
 ---
 
@@ -106,7 +118,8 @@ jsPDF
 - Decision-support workflows
 - Risk assessment environments
 - Business intelligence review
-- Scenario modeling
+- Forecast planning
+- Scenario simulation
 
 ---
 
@@ -117,6 +130,7 @@ jsPDF
 - No tracking
 - No external storage
 - No telemetry
+- No background network calls required
 
 ---
 
@@ -140,4 +154,4 @@ MIT License
 ## Summary
 
 This is not a dashboard.  
-It is a decision engine packaged as a self-contained intelligence system.
+It is a self-validating decision engine packaged as a portable intelligence system.
