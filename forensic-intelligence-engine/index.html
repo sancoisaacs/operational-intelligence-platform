@@ -3,782 +3,737 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdherenceFlow v4.1 | Analyst Edition</title>
+    <title>Forensic Intelligence Pro | V8.5 Stable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        :root {
-            --primary: #2563eb;
-            --surface: #ffffff;
-            --bg: #f8fafc;
-            --text: #0f172a;
-            --border: #e2e8f0;
-            --red-soft: #fef2f2;
-            --red-text: #991b1b;
-            --yellow-soft: #fef3c7;
-            --yellow-text: #92400e;
-            --green-soft: #dcfce7;
-            --green-text: #166534;
-            --ai-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body { background-color: #0a0e1a; color: #cbd5e1; font-family: 'Inter', sans-serif; }
+        
+        .glass-panel { 
+            background: linear-gradient(135deg, #1a1f35 0%, #0f1420 100%);
+            border: 1px solid #2d3548; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
-
-        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+        .glass-panel:hover { 
+            border-color: #38bdf8;
+            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.2);
+            transform: translateY(-2px);
         }
-
-        .app-container {
-            width: 100%;
-            max-width: 1800px;
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        
+        .strategy-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            border: 2px solid #6366f1;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+            position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 95vh;
         }
+        .strategy-card::after {
+            content: "";
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #818cf8, transparent);
+            animation: scanline 3s infinite linear;
+        }
+        @keyframes scanline { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        /* --- Header & Config --- */
-        .header {
-            padding: 15px 24px;
-            border-bottom: 1px solid var(--border);
-            background: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+        .insight-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #38bdf8;
+            position: relative;
+            overflow: hidden;
         }
         
-        .server-config {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #f1f5f9;
-            padding: 4px 8px;
+        .risk-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .risk-low { background: #064e3b; color: #34d399; border: 1px solid #10b981; }
+        .risk-medium { background: #78350f; color: #fbbf24; border: 1px solid #f59e0b; }
+        .risk-high { background: #7f1d1d; color: #f87171; border: 1px solid #ef4444; }
+
+        .action-item {
+            background: #0f172a;
+            border-left: 4px solid #6366f1;
+            padding: 16px;
+            margin: 8px 0;
             border-radius: 8px;
-            border: 1px solid var(--border);
+            transition: all 0.3s;
         }
-        
-        .server-input {
-            border: none;
-            background: transparent;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: #475569;
-            width: 180px;
-            outline: none;
+        .action-item:hover {
+            background: #1e293b;
+            border-left-color: #818cf8;
+            transform: translateX(4px);
         }
 
-        /* --- Toolbar --- */
-        .toolbar {
-            padding: 12px 24px;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            color: #334155;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
+        .metric-pill {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s;
-        }
-        .btn:hover { background: #e2e8f0; }
-        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-ai { background: var(--ai-gradient); color: white; border: none; }
-        .btn-danger { color: #dc2626; border-color: #fecaca; } .btn-danger:hover { background: #fef2f2; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* --- Layout --- */
-        .workspace-layout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .main-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .ai-sidebar {
-            width: 400px;
-            background: white;
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-
-        /* --- Dashboard Cards --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px;
-        }
-
-        .metric-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .metric-card .value { font-size: 1.8rem; font-weight: 700; }
-        .metric-card .label { font-size: 0.85rem; color: #64748b; font-weight: 500; }
-        .metric-card .subtext { font-size: 0.75rem; color: #94a3b8; }
-
-        /* --- Tables & Coaching --- */
-        .table-wrapper {
-            background: white;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .table-header {
-            padding: 10px 20px;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-            color: #64748b;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        /* Table Styles for JS Injection */
-        .adherence-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif; }
-        .adherence-table th { background: #f1f5f9; padding: 10px; text-align: left; border: 1px solid #cbd5e1; font-weight: 600; }
-        .adherence-table td { padding: 8px; border: 1px solid #e2e8f0; vertical-align: middle; }
-        .adherence-table tr:nth-child(even) { background-color: #f8fafc; } /* Zebra Striping */
-        .adherence-table tr:hover { background-color: #f1f5f9; }
-
-        .coaching-console {
-            background: white;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-        .console-header {
-            padding: 12px 20px;
-            background: var(--red-soft);
-            color: var(--red-text);
-            font-weight: 600;
-            border-bottom: 1px solid #fee2e2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .console-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            padding: 15px;
-        }
-
-        .issue-card {
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 15px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .risk-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .risk-chronic { background: var(--red-soft); color: var(--red-text); }
-        .risk-pattern { background: var(--yellow-soft); color: var(--yellow-text); }
-        .risk-clean { background: var(--green-soft); color: var(--green-text); }
-
-        /* --- AI Chat Components --- */
-        .ai-header {
-            padding: 15px;
-            background: var(--ai-gradient);
-            color: white;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .ai-chat-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #f8fafc;
-        }
-        .ai-message {
-            max-width: 90%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        .ai-message.user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
-        .ai-message.assistant { align-self: flex-start; background: white; border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 2px; }
-        .ai-message.system { align-self: center; background: var(--yellow-soft); color: var(--yellow-text); font-size: 0.8rem; text-align: center; border-radius: 16px; padding: 4px 12px; }
-        
-        .ai-input-area {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 8px;
-        }
-        .ai-input {
-            flex-grow: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
+            padding: 6px 14px;
+            background: #1e293b;
+            border: 1px solid #334155;
             border-radius: 20px;
-            outline: none;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
-        /* --- Utility --- */
-        #dropZone {
-            margin: 40px;
-            border: 2px dashed #94a3b8;
-            border-radius: 12px;
-            padding: 60px;
-            text-align: center;
-            background: #f8fafc;
-            cursor: pointer;
-            transition: all 0.2s;
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
-        #dropZone:hover { border-color: var(--primary); background: #eff6ff; }
-        .hidden { display: none !important; }
-        
-        select.model-select { padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; max-width: 150px; }
-
-        /* Dialog Styles */
-        dialog { border: none; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 0; width: 600px; max-width: 90vw; }
-        dialog::backdrop { background: rgba(0,0,0,0.5); }
-        .dialog-body { padding: 20px; }
-        textarea { width: 100%; height: 150px; margin: 10px 0; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; }
-
-        @media (max-width: 1000px) {
-            .workspace-layout { flex-direction: column; overflow-y: auto; height: auto; }
-            .ai-sidebar { width: 100%; height: 500px; border-left: none; border-top: 1px solid var(--border); }
-            .app-container { height: auto; min-height: 100vh; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
         }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
     </style>
 </head>
-<body>
+<body class="h-screen flex flex-col p-4 overflow-hidden">
 
-    <div class="app-container">
-        <div class="header">
-            <div>
-                <h1 style="margin:0; font-size: 1.3rem;">AdherenceFlow v4.1 <span style="font-size:0.8rem; background: var(--ai-gradient); color:white; padding:2px 8px; border-radius:10px;">ANALYST</span></h1>
-                <p style="margin:4px 0 0 0; font-size:0.85rem; color:#64748b;">Breaks: 15m • Lunch: 60m • Personal: 17m (Daily) / 23m (Weekly)</p>
+    <header class="flex justify-between items-center mb-6 shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">FORENSIC INTELLIGENCE <span class="text-indigo-400">PRO V8.5</span></h1>
+            <p class="text-xs text-slate-500">Multi-Factor Analysis • Smart Logic • Strategic Decision Engine</p>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div id="model-status" class="hidden px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border border-emerald-700 text-xs text-emerald-400 flex items-center gap-2">
+                <div class="pulse-dot bg-emerald-400"></div>
+                <span class="font-bold">Intelligence Engine Active</span>
             </div>
             
-            <div style="display:flex; gap:10px; align-items: center; flex-wrap: wrap;">
-                <div class="server-config">
-                    <span style="font-size:1rem;">📡</span>
-                    <input type="text" id="ollamaHost" class="server-input" value="http://localhost:11434" placeholder="Ollama URL">
-                </div>
-                <select id="modelSelect" class="model-select" style="display:none;"></select>
-                <button class="btn btn-ai" id="connectBtn">🔌 Connect</button>
-                <button class="btn btn-danger" onclick="clearDatabase()">🗑️ Purge DB</button>
-                <button class="btn" onclick="location.reload()">🔄 Reset</button>
+            <div id="export-buttons" class="hidden flex gap-2">
+                <button onclick="exportToExcel()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2 text-sm">
+                    <span>📊 Excel</span>
+                </button>
             </div>
-        </div>
-
-        <div class="toolbar">
-            <button class="btn btn-primary" id="copyBtn" disabled>📋 Copy Table</button>
-            <div style="width: 1px; height: 20px; background: #cbd5e1; margin: 0 10px;"></div>
-            <button class="btn" onclick="document.getElementById('csvInput').click()">📂 Upload CSV</button>
-            <button class="btn" id="sampleBtn">🧪 Load Sample</button>
-            <input type="file" id="csvInput" accept=".csv" style="display: none;">
-            <div style="flex-grow:1"></div>
-            <span id="dbStatus" style="font-size:0.8rem; color:#64748b;">DB: Ready</span>
-        </div>
-
-        <div class="workspace-layout">
             
-            <div class="main-panel">
-                <div id="dropZone">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">📊</div>
-                    <h3>Drop CSV to Analyze</h3>
-                    <p style="color:#64748b;">Logic: 15m Break | 60m Lunch | 17m Pers (Daily) / 23m Pers (Weekly)</p>
-                </div>
+            <button onclick="loadSampleData()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                <span>🧪 LOAD SAMPLE DATA</span>
+            </button>
 
-                <div id="workspace" class="hidden" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="dashboard-grid">
-                        <div class="metric-card"> <div class="label">Team Adherence</div> <div class="value" id="adherenceScore">--%</div> <div class="subtext">Daily Compliance</div> </div>
-                        <div class="metric-card"> <div class="label">Violations</div> <div class="value" id="violationCount" style="color:#dc2626">0</div> <div class="subtext">Requires Attention</div> </div>
-                        <div class="metric-card"> <div class="label">Personal Time Alert</div> <div class="value" id="persAlertCount" style="color:#f59e0b">0</div> <div class="subtext">> 23m Weekly / > 17m Daily</div> </div>
-                        <div class="metric-card"> <div class="label">Database</div> <div class="value" id="dbCount">0</div> <div class="subtext">Historical Records</div> </div>
-                    </div>
-
-                    <div class="coaching-console" id="coachingConsole">
-                        <div class="console-header"> <span>🎯 COACHING QUEUE</span> <span id="consoleCount" style="background:white; padding:2px 10px; border-radius:10px; font-size:0.8rem;">0</span> </div>
-                        <div class="console-list" id="coachingList"></div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <div class="table-header"> <span>📋 ADHERENCE REPORT (Outlook Ready)</span> </div>
-                        <div id="tableOutput" style="overflow: auto; max-height: 400px;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ai-sidebar">
-                <div class="ai-header">
-                    <span>🤖 Analyst AI</span>
-                    <span id="aiStatus" style="font-size: 0.75rem; opacity: 0.9;">Offline</span>
-                </div>
-                <div class="ai-chat-area" id="aiChat">
-                    <div class="ai-message system">Ensure Ollama is running.<br>Default: localhost:11434<br>Termux? check your IP.</div>
-                </div>
-                <div class="ai-input-area">
-                    <input type="text" class="ai-input" id="aiInput" placeholder="Ask about adherence..." disabled>
-                    <button class="btn btn-primary" id="aiSendBtn" disabled style="padding: 8px 12px; border-radius: 50%;">➤</button>
-                </div>
-                <div style="padding: 10px; background: #f1f5f9; display: flex; gap: 5px; flex-wrap: wrap;">
-                    <button class="btn" style="font-size: 0.75rem; padding: 4px 8px;" onclick="askAI('Summarize the top offenders')">📊 Summary</button>
-                    <button class="btn" style="font-size: 0.75rem; padding: 4px 8px;" onclick="askAI('Draft a general team reminder about personal time')">📢 Email</button>
-                    <button class="btn" style="font-size: 0.75rem; padding: 4px 8px;" onclick="askAI('Analyze the personal time trends')">⏱️ Trends</button>
-                </div>
-            </div>
-
+            <label class="cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                <span>📊 INGEST FILE</span>
+                <input type="file" multiple accept=".csv,.xlsx,.xls" class="hidden" onchange="processFiles(this.files)">
+            </label>
         </div>
+    </header>
+
+    <div id="dashboard" class="flex-1 overflow-y-auto grid grid-cols-1 gap-6 pb-20 hidden">
+        
+        <div id="executive-summary" class="hidden"></div>
+
+        <div id="strategy-zone" class="hidden"></div>
+
+        <div id="risk-zone" class="hidden"></div>
+
+        <div id="prediction-zone" class="hidden"></div>
+
+        <div id="pattern-zone" class="hidden"></div>
+
+        <div id="correlation-zone" class="hidden"></div>
+        
+        <div id="charts-zone" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+
+        <div id="anomaly-zone" class="hidden"></div>
     </div>
 
-    <dialog id="noteDialog">
-        <div style="padding:20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between;">
-            <h3 style="margin:0">Draft Coaching Note</h3>
-            <button class="btn" onclick="document.getElementById('noteDialog').close()" style="padding:4px 10px">✕</button>
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-600">
+        <div class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-indigo-900/50 to-purple-900/50 flex items-center justify-center text-4xl border-2 border-indigo-700">
+            🧠
         </div>
-        <div class="dialog-body">
-            <div id="historyContext" style="margin-bottom:15px; font-size:0.9rem; color:#64748b; background: white; padding: 10px; border: 1px solid #e2e8f0; border-radius: 4px;"></div>
-            <textarea id="noteText"></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn" onclick="document.getElementById('noteDialog').close()">Cancel</button>
-                <button class="btn btn-primary" onclick="copyNoteToClip()">Copy to Clipboard</button>
-            </div>
-        </div>
-    </dialog>
+        <p class="text-2xl font-bold text-slate-300">Intelligence System Ready</p>
+        <p class="text-sm mt-3 text-slate-500">Upload your data files to begin forensic analysis</p>
+    </div>
 
 <script>
-    /* --- CONFIGURATION & LIMITS --- */
-    // Limits in seconds
-    const LIMITS = { 
-        break: 15 * 60,          // 15 mins
-        lunch: 60 * 60,          // 60 mins
-        personalDaily: 17 * 60,  // 17 mins daily cap
-        personalWeekly: 23 * 60  // 23 mins weekly cap
-    };
-    const STORAGE_KEY = 'adherence_v4_db';
-
-    let aiReady = false;
-    let currentModel = '';
-    let currentData = [];
-
-    // --- DATABASE (LocalStorage) ---
-    const DB = {
-        get: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
-        save: (data) => {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            document.getElementById('dbCount').innerText = data.length;
+    // ═══════════════════════════════════════════════════════════
+    // 1. CONFIG & ICONS
+    // ═══════════════════════════════════════════════════════════
+    const ICONS = {
+        flavor: (name) => {
+            const n = name.toLowerCase();
+            if (n.includes('choc')) return '🍫'; if (n.includes('berr')) return '🍓'; if (n.includes('lemon')) return '🍋';
+            if (n.includes('vanilla')) return '🍦'; if (n.includes('mint')) return '🌿'; return '🍨';
         },
-        add: (newRecords) => {
-            const current = DB.get();
-            let addedCount = 0;
-            newRecords.forEach(rec => {
-                // Avoid duplicates based on Agent + Date
-                const exists = current.some(r => r.agent === rec.agent && r.date === rec.date);
-                if (!exists) { current.push(rec); addedCount++; }
-            });
-            DB.save(current);
-            return addedCount;
+        weather: (code) => {
+            if (code === 0) return '☀️'; if (code >= 1 && code <= 3) return '⛅'; if (code >= 51) return '🌧️'; return '🌡️';
         },
-        getHistory: (agentName) => DB.get().filter(r => r.agent === agentName).sort((a,b) => new Date(b.date) - new Date(a.date)),
-        // Get cumulative personal time for the current week (Sunday to Saturday)
-        getWeeklyPersonal: (agentName, dateObj) => {
-            const history = DB.get().filter(r => r.agent === agentName);
-            // Simple Week Calculation logic matching the input date
-            const targetWeek = getWeekNumber(dateObj); 
-            // Sum personal time (in seconds) for this agent in this week
-            const weekTotal = history
-                .filter(h => h.week === targetWeek)
-                .reduce((sum, r) => sum + r.seconds.p, 0);
-            return weekTotal;
-        }
+        trend: (slope) => slope > 0 ? '📈' : slope < 0 ? '📉' : '➡️',
+        risk: (level) => level === 'low' ? '🟢' : level === 'medium' ? '🟡' : '🔴',
+        action: (priority) => priority === 'critical' ? '🚨' : priority === 'high' ? '⚡' : '💡'
     };
 
-    // --- OLLAMA CONNECTION ---
-    const connectBtn = document.getElementById('connectBtn');
-    const modelSelect = document.getElementById('modelSelect');
-    const hostInput = document.getElementById('ollamaHost');
+    let INTELLIGENCE = {
+        topFlavor: null, topFlavorRevenue: 0, secondFlavor: null, totalRevenue: 0, averageSales: 0,
+        tempSlope: 0, tempIntercept: 0, modelR2: 0, mae: 0, mape: 0,
+        patterns: [], volatility: 0, riskScore: 0, riskFactors: [], recommendations: [],
+        regressionPoints: [] // Needed for Scatter Plot
+    };
 
-    connectBtn.addEventListener('click', async () => {
-        const host = hostInput.value.replace(/\/$/, ""); // remove trailing slash
-        connectBtn.disabled = true;
-        connectBtn.textContent = '...';
-        
-        try {
-            addAIMessage(`Attempting connection to ${host}...`, 'system');
-            const response = await fetch(`${host}/api/tags`);
-            if (!response.ok) throw new Error("Connection failed");
-            
-            const data = await response.json();
-            const models = data.models;
-
-            if (!models || models.length === 0) throw new Error("No models found.");
-
-            modelSelect.innerHTML = models.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-            modelSelect.style.display = 'inline-block';
-            currentModel = models[0].name;
-
-            aiReady = true;
-            document.getElementById('aiStatus').innerText = 'Online';
-            document.getElementById('aiStatus').style.color = '#10b981';
-            document.getElementById('aiInput').disabled = false;
-            document.getElementById('aiSendBtn').disabled = false;
-            connectBtn.style.display = 'none';
-            
-            addAIMessage(`✅ Connected. Model: ${currentModel}`, 'system');
-            addAIMessage(`I am ready to analyze workflow adherence.`, 'assistant');
-
-        } catch (err) {
-            console.error(err);
-            addAIMessage(`❌ Error: ${err.message}. Check CORS or IP.`, 'system');
-            connectBtn.disabled = false;
-            connectBtn.textContent = '🔌 Retry';
-        }
-    });
-
-    modelSelect.addEventListener('change', (e) => currentModel = e.target.value);
-
-    // --- AI CHAT LOGIC ---
-    window.askAI = function(txt) { document.getElementById('aiInput').value = txt; sendAIMessage(); }
-    
-    async function sendAIMessage() {
-        const input = document.getElementById('aiInput');
-        const text = input.value.trim();
-        if(!text || !aiReady) return;
-
-        addAIMessage(text, 'user');
-        input.value = '';
-        input.disabled = true;
-
-        const loadingMsg = addAIMessage("Analyzing...", 'assistant');
-        
-        // Build Context
-        const offenders = currentData.filter(r => r.issues.length > 0);
-        const stats = {
-            total: currentData.length,
-            bad: offenders.length,
-            rate: document.getElementById('adherenceScore').innerText
-        };
-
-        const context = `
-        ROLE: You are a Workflow Analyst.
-        RULES: Break>15m is Late. Lunch>60m is Late. Personal Daily > 17m is Late. Personal Weekly > 23m is Critical.
-        CURRENT DATA:
-        - Team Adherence: ${stats.rate}
-        - Violations: ${stats.bad}
-        
-        VIOLATION DETAILS:
-        ${offenders.slice(0, 20).map(o => `${o.agent}: ${o.issues.map(i => i.desc).join(', ')}`).join('\n')}
-        `;
-
-        try {
-            const host = hostInput.value.replace(/\/$/, "");
-            const res = await fetch(`${host}/api/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: currentModel,
-                    prompt: `${context}\n\nUSER QUESTION: ${text}\n\nANALYST ANSWER:`,
-                    stream: false
-                })
-            });
-            const json = await res.json();
-            loadingMsg.innerText = json.response;
-        } catch (e) {
-            loadingMsg.innerText = "Error communicating with AI.";
-        } finally {
-            input.disabled = false;
-            input.focus();
-        }
+    function decodeDate(serial) {
+        if (!serial) return "-";
+        if (typeof serial === 'string') return serial;
+        const date = new Date(Math.round((serial - 25569) * 86400 * 1000));
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    function addAIMessage(text, role) {
-        const div = document.createElement('div');
-        div.className = `ai-message ${role}`;
-        div.innerText = text;
-        const area = document.getElementById('aiChat');
-        area.appendChild(div);
-        area.scrollTop = area.scrollHeight;
-        return div;
-    }
-
-    // --- CSV & DATA PROCESSING ---
-    const dropZone = document.getElementById('dropZone');
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.background = '#eff6ff'; });
-    dropZone.addEventListener('dragleave', () => dropZone.style.background = '#f8fafc');
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
-    document.getElementById('csvInput').addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-    document.getElementById('sampleBtn').addEventListener('click', () => {
-        const today = new Date().toISOString().split('T')[0];
-        const data = `Agent,Date,Break 1,Break 2,Break 3,Lunch,Personal
-Sarah Jenkins,${today},00:15:00,00:14:50,00:15:00,01:00:00,00:05:00
-Mike Ross,${today},00:18:00,00:15:00,00:15:00,01:05:00,00:00:00
-Harvey Specter,${today},00:15:00,00:15:00,00:15:00,00:58:00,00:20:00
-Donna Paulsen,${today},00:15:00,00:15:00,00:15:00,01:00:00,00:00:00
-Louis Litt,${today},00:20:00,00:15:00,00:00:00,01:00:00,00:25:00`;
-        processCSV(parseCSV(data));
-    });
-
-    function handleFile(file) {
-        if(!file) return;
-        const r = new FileReader();
-        r.onload = (e) => processCSV(parseCSV(e.target.result));
-        r.readAsText(file);
-    }
-
-    function processCSV(rows) {
-        if(rows.length < 2) return alert("Invalid CSV");
+    // ═══════════════════════════════════════════════════════════
+    // 2. MAIN PROCESSING (WITH V8.1 SMART LOGIC)
+    // ═══════════════════════════════════════════════════════════
+    async function processFiles(files) {
+        if (!files.length) return;
         
-        // Map Headers
-        const h = rows[0].map(x => x.toLowerCase().trim());
-        const idx = {
-            agent: h.findIndex(x => x.includes('agent')),
-            date: h.findIndex(x => x.includes('date') || x.includes('period')),
-            b1: h.findIndex(x => x.includes('break 1') || x.includes('break time')),
-            b2: h.findIndex(x => x.includes('break 2')),
-            b3: h.findIndex(x => x.includes('break 3')),
-            ln: h.findIndex(x => x.includes('lunch')),
-            p: h.findIndex(x => x.includes('personal'))
-        };
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('charts-zone').innerHTML = '';
+        
+        const status = document.getElementById('model-status');
+        status.classList.remove('hidden');
+        status.innerHTML = '<div class="pulse-dot bg-yellow-400"></div><span class="font-bold">Processing Data...</span>';
 
-        const processed = [];
-        let weekRef = 0;
+        const processedData = [];
 
-        for(let i=1; i<rows.length; i++) {
-            const row = rows[i];
-            if(row.length < 2) continue;
+        for (let file of files) {
+            const data = await parseExcel(file);
+            if (!data.length) continue;
 
-            const agent = row[idx.agent];
-            let dateStr = row[idx.date] || new Date().toISOString().split('T')[0];
-            const dateObj = new Date(dateStr);
-            const week = getWeekNumber(dateObj);
-            weekRef = week;
+            const keys = Object.keys(data[0]).map(k => k.toLowerCase());
+            let type = 'Unknown';
+            if (keys.some(k => k.includes('flavor') || k.includes('product'))) type = 'Flavor';
+            else if (keys.some(k => k.includes('temp'))) type = 'Weather';
+            else if (keys.includes('date') && keys.some(k => k.includes('sales') || k.includes('revenue'))) type = 'Timeline';
 
-            // Times
-            const v = {
-                b1: row[idx.b1] || "00:00:00", b2: row[idx.b2] || "00:00:00",
-                b3: row[idx.b3] || "00:00:00", ln: row[idx.ln] || "00:00:00", p: row[idx.p] || "00:00:00"
-            };
-            
-            const s = {
-                b1: timeToSec(v.b1), b2: timeToSec(v.b2), b3: timeToSec(v.b3),
-                ln: timeToSec(v.ln), p: timeToSec(v.p)
-            };
-
-            // Historical Personal Time Check (Weekly)
-            const priorWeeklyP = DB.getWeeklyPersonal(agent, dateObj); 
-            const totalWeeklyP = priorWeeklyP + s.p; // Add current day's time to history
-
-            // Logic Check
-            const issues = [];
-            if(s.b1 > LIMITS.break) issues.push({ type:'Break 1', desc: `B1 Over (${v.b1})` });
-            if(s.b2 > LIMITS.break) issues.push({ type:'Break 2', desc: `B2 Over (${v.b2})` });
-            if(s.b3 > LIMITS.break) issues.push({ type:'Break 3', desc: `B3 Over (${v.b3})` });
-            if(s.ln > LIMITS.lunch) issues.push({ type:'Lunch', desc: `Lunch Over (${v.ln})` });
-            
-            // Personal Time Logic
-            if(s.p > LIMITS.personalDaily) {
-                issues.push({ type:'Personal', desc: `Daily Pers Over (${v.p})` });
-            } else if(totalWeeklyP > LIMITS.personalWeekly) {
-                // If daily is fine, but weekly total is blown
-                const min = Math.floor(totalWeeklyP/60);
-                issues.push({ type:'Personal Weekly', desc: `Weekly Pers Limit (${min}m / 23m)` });
-            }
-
-            processed.push({ agent, date: dateStr, week, values: v, seconds: s, issues, weeklyPTotal: totalWeeklyP });
+            processedData.push({ type, data, filename: file.name });
         }
 
-        // Save to DB and Update UI
-        DB.add(processed);
-        currentData = processed;
-        renderUI(processed);
+        executeIntelligenceEngine(processedData);
     }
 
-    // --- RENDERING ---
-    function renderUI(data) {
-        document.getElementById('dropZone').classList.add('hidden');
-        document.getElementById('workspace').classList.remove('hidden');
-        document.getElementById('copyBtn').disabled = false;
-        document.getElementById('dbCount').innerText = DB.get().length;
-
-        // Metrics
-        const violations = data.filter(r => r.issues.length > 0).length;
-        const persIssues = data.filter(r => r.issues.some(i => i.type.includes('Personal'))).length;
-        const adherence = ((data.length - violations) / data.length * 100).toFixed(1);
-
-        document.getElementById('adherenceScore').innerText = adherence + "%";
-        document.getElementById('violationCount').innerText = violations;
-        document.getElementById('persAlertCount').innerText = persIssues;
-
-        // Table
-        let html = `<table class="adherence-table">
-            <thead><tr>
-                <th style="min-width:150px;">Agent</th>
-                <th style="text-align:center">Break 1</th>
-                <th style="text-align:center">Break 2</th>
-                <th style="text-align:center">Break 3</th>
-                <th style="text-align:center">Lunch</th>
-                <th style="text-align:center">Personal (Day)</th>
-                <th style="text-align:center">Personal (Week Total)</th>
-            </tr></thead><tbody>`;
-        
-        data.forEach((r, idx) => {
-            // Style logic: Red (Over) -> Green (Used but OK) -> Grey/White (Empty)
-            const c = (val, sec, lim) => {
-                let style = 'text-align:center; padding:8px; border:1px solid #e2e8f0;';
-                if (sec > lim) return style + ' background:#fee2e2; color:#b91c1c; font-weight:bold;'; // Red
-                if (sec > 0) return style + ' background:#dcfce7; color:#166534; font-weight:bold;'; // Green
-                return style + ' color:#94a3b8;'; // Neutral
+    function parseExcel(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = (e) => {
+                const workbook = XLSX.read(e.target.result, { type: 'array' });
+                resolve(XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]));
             };
-            
-            // Special styling for Weekly Personal column
-            let wkStyle = 'text-align:center; padding:8px; border:1px solid #e2e8f0;';
-            if (r.weeklyPTotal > LIMITS.personalWeekly) {
-                wkStyle += ' background:#fee2e2; color:#b91c1c; font-weight:bold; border:2px solid #b91c1c;';
-            } else if (r.weeklyPTotal > 0) {
-                wkStyle += ' background:#dcfce7; color:#166534; font-weight:bold;';
-            } else {
-                wkStyle += ' color:#94a3b8;';
-            }
-
-            const rowClass = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'; // Handled by CSS nth-child now, but good for clipboard copy
-
-            html += `<tr class="${rowClass}">
-                <td style="padding:8px; border:1px solid #e2e8f0; font-weight:600; color:#0f172a;">${r.agent}</td>
-                <td style="${c(r.values.b1, r.seconds.b1, LIMITS.break)}">${r.values.b1}</td>
-                <td style="${c(r.values.b2, r.seconds.b2, LIMITS.break)}">${r.values.b2}</td>
-                <td style="${c(r.values.b3, r.seconds.b3, LIMITS.break)}">${r.values.b3}</td>
-                <td style="${c(r.values.ln, r.seconds.ln, LIMITS.lunch)}">${r.values.ln}</td>
-                <td style="${c(r.values.p, r.seconds.p, LIMITS.personalDaily)}">${r.values.p}</td>
-                <td style="${wkStyle}">${Math.floor(r.weeklyPTotal/60)}m</td>
-            </tr>`;
         });
-        document.getElementById('tableOutput').innerHTML = html + "</tbody></table>";
-
-        // Coaching Console
-        const consoleList = document.getElementById('coachingList');
-        const offenders = data.filter(r => r.issues.length > 0);
-        document.getElementById('consoleCount').innerText = offenders.length;
-
-        if(offenders.length === 0) {
-            consoleList.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#64748b;">✅ Perfect Adherence!</div>`;
-        } else {
-            consoleList.innerHTML = offenders.map(rec => {
-                const history = DB.getHistory(rec.agent);
-                const badDays = history.filter(h => h.issues.length > 0).length;
-                let risk = badDays > 2 ? 'chronic' : (badDays > 1 ? 'pattern' : 'clean');
-                let label = badDays > 2 ? 'Chronic' : (badDays > 1 ? 'Pattern' : 'First Time');
-
-                return `
-                <div class="issue-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:700;">${rec.agent}</span>
-                        <span class="risk-badge risk-${risk}">${label}</span>
-                    </div>
-                    <div style="font-size:0.85rem; color:#dc2626; line-height:1.4;">
-                        ${rec.issues.map(i => `• ${i.desc}`).join('<br>')}
-                    </div>
-                    <div style="font-size:0.8rem; color:#64748b; margin-top:5px;">
-                        Weekly Personal Used: <strong>${Math.floor(rec.weeklyPTotal/60)}m</strong> / 23m
-                    </div>
-                    <button class="btn btn-primary" style="margin-top:5px; font-size:0.8rem; padding:6px;" 
-                        onclick='openNote("${rec.agent}", ${JSON.stringify(rec.issues)}, ${rec.weeklyPTotal})'>
-                        💬 Coach
-                    </button>
-                </div>`;
-            }).join('');
-        }
     }
 
-    // --- UTILS ---
-    function parseCSV(t) { let r=[],row=[],c="",q=false; for(let x of t){ if(x=='"'){q=!q} else if(x==','&&!q){row.push(c.trim());c=""} else if(x=='\n'&&!q){row.push(c.trim());r.push(row);row=[];c=""} else if(x!='\r'){c+=x} } if(c)row.push(c.trim()); if(row.length)r.push(row); return r; }
-    function timeToSec(s) { if(!s) return 0; const p=s.split(':').map(Number); return (p[0]*3600)+(p[1]*60)+(p[2]||0); }
-    function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7); }
-    window.clearDatabase = () => { if(confirm("Clear history?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }};
-    
-    // Copy Table
-    document.getElementById('copyBtn').onclick = async () => {
-        const t = document.querySelector('#tableOutput table');
-        try { await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([t.outerHTML],{type:'text/html'})})]); alert("Copied!"); }
-        catch(e) { 
-            const s=window.getSelection(), r=document.createRange(); r.selectNode(t); s.removeAllRanges(); s.addRange(r); alert("Press Ctrl+C"); 
+    async function executeIntelligenceEngine(processedData) {
+        const status = document.getElementById('model-status');
+        const weatherSet = processedData.find(d => d.type === 'Weather');
+        const flavorSet = processedData.find(d => d.type === 'Flavor');
+        const timelineSet = processedData.find(d => d.type === 'Timeline');
+
+        if (weatherSet && timelineSet) {
+            trainIntelligenceEngine(weatherSet.data, timelineSet.data);
         }
-    };
+        
+        if (flavorSet) analyzeProductPerformance(flavorSet.data);
+        if (timelineSet) detectPatterns(timelineSet.data);
 
-    // Note Dialog
-    window.openNote = (agent, issues, weekPersSec) => {
-        const dialog = document.getElementById('noteDialog');
-        const weeklyUsed = Math.floor(weekPersSec/60);
-        const issueTxt = issues.map(i => `- ${i.desc}`).join('\n');
-        
-        document.getElementById('historyContext').innerHTML = `<strong>${agent}</strong><br>Weekly Personal Used: ${weeklyUsed}m (Limit 23m)`;
-        
-        let msg = `Hi ${agent.split(' ')[0]},\n\nI noticed some adherence gaps:\n${issueTxt}\n\n`;
-        if(weeklyUsed > 23) msg += `Note: You are currently at ${weeklyUsed} minutes of personal time for the week (Limit is 23m).\n\n`;
-        msg += `Please let me know if there's a blocker. Thanks!`;
-        
-        document.getElementById('noteText').value = msg;
-        dialog.showModal();
-    };
-    window.copyNoteToClip = () => { navigator.clipboard.writeText(document.getElementById('noteText').value).then(() => document.getElementById('noteDialog').close()); };
+        calculateRiskProfile();
+        generateRecommendations();
 
-    // Enter key for AI
-    document.getElementById('aiInput').addEventListener('keypress', (e) => { if(e.key==='Enter') sendAIMessage(); });
+        // RENDER V8 VISUALS
+        renderExecutiveSummary();
+        renderStrategyPanel();
+        renderRiskAnalysis();
+        if (weatherSet) await runAdvancedForecast();
+        renderPatternInsights();
+        renderCorrelationMatrix(processedData);
+        
+        // RENDER CHARTS
+        if (flavorSet) createWidget('Flavor', flavorSet.data);
+        if (timelineSet) createWidget('Timeline', timelineSet.data);
+        
+        // SWITCH: If we have Weather + Sales, show SCATTER. Else Line.
+        if (weatherSet && timelineSet) {
+            createWidget('Correlation', null); // V8.1 Scatter Logic
+        } else if (weatherSet) {
+            createWidget('Weather', weatherSet.data);
+        }
+        
+        renderAnomalyDetection();
+
+        status.innerHTML = '<div class="pulse-dot bg-emerald-400"></div><span class="font-bold">Intelligence Engine Active</span>';
+        document.getElementById('export-buttons').classList.remove('hidden');
+    }
+
+    function loadSampleData() {
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('charts-zone').innerHTML = '';
+        const status = document.getElementById('model-status');
+        status.classList.remove('hidden');
+        status.innerHTML = '<div class="pulse-dot bg-yellow-400"></div><span class="font-bold">Synthesizing Sample Data...</span>';
+
+        const timelineData = [], weatherData = [], flavorData = [];
+        const startDate = new Date(); startDate.setDate(startDate.getDate() - 30);
+        const flavors = [{ name: "Midnight Chocolate", base: 100 }, { name: "Solar Strawberry", base: 80 }, { name: "Nebula Vanilla", base: 60 }];
+
+        for (let i = 0; i < 30; i++) {
+            const d = new Date(startDate); d.setDate(d.getDate() + i);
+            const dateStr = d.toLocaleDateString();
+            const temp = 60 + Math.random() * 35;
+            // Strong correlation
+            const sales = 500 + ((temp - 60) * 50) + ((Math.random() - 0.5) * 200);
+            
+            timelineData.push({ "Date": dateStr, "Total Sales": Math.round(sales) });
+            weatherData.push({ "Date": dateStr, "Avg Temp (F)": Math.round(temp) });
+        }
+        
+        flavors.forEach(f => {
+            flavorData.push({ "Flavor Name": f.name, "Units Sold": f.base * 10 + Math.floor(Math.random() * 100) });
+        });
+
+        setTimeout(() => {
+            executeIntelligenceEngine([
+                { type: 'Timeline', data: timelineData },
+                { type: 'Weather', data: weatherData },
+                { type: 'Flavor', data: flavorData }
+            ]);
+        }, 800);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 3. CORE ANALYTICS (SMART JOIN + R2)
+    // ═══════════════════════════════════════════════════════════
+    
+    function trainIntelligenceEngine(weatherData, timelineData) {
+        // SMART MATCHING by DATE
+        const getDateKey = (row) => {
+            const val = Object.values(row)[0]; 
+            if (typeof val === 'number') return Math.round(val);
+            return new Date(val).toDateString(); 
+        };
+
+        const salesMap = new Map();
+        const salesKey = Object.keys(timelineData[0]).find(k => k.match(/sales|revenue/i));
+        timelineData.forEach(r => {
+            const cleanVal = parseFloat(String(r[salesKey]).replace(/[^0-9.]/g,''));
+            if (!isNaN(cleanVal)) salesMap.set(getDateKey(r), cleanVal);
+        });
+
+        const alignedData = [];
+        const tempKey = Object.keys(weatherData[0]).find(k => k.match(/temp/i));
+        
+        weatherData.forEach(r => {
+            const key = getDateKey(r);
+            if (salesMap.has(key)) {
+                const t = parseFloat(r[tempKey]);
+                if (!isNaN(t)) alignedData.push({ temp: t, sales: salesMap.get(key) });
+            }
+        });
+
+        if (alignedData.length < 5) return;
+
+        // REGRESSION
+        const n = alignedData.length;
+        const sumX = alignedData.reduce((a, b) => a + b.temp, 0);
+        const sumY = alignedData.reduce((a, b) => a + b.sales, 0);
+        const sumXY = alignedData.reduce((a, b) => a + b.temp * b.sales, 0);
+        const sumX2 = alignedData.reduce((a, b) => a + b.temp * b.temp, 0);
+
+        INTELLIGENCE.tempSlope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        INTELLIGENCE.tempIntercept = (sumY - INTELLIGENCE.tempSlope * sumX) / n;
+        INTELLIGENCE.averageSales = sumY / n;
+
+        // R2 SCORE
+        const ssRes = alignedData.reduce((sum, d) => {
+            const pred = INTELLIGENCE.tempSlope * d.temp + INTELLIGENCE.tempIntercept;
+            return sum + Math.pow(d.sales - pred, 2);
+        }, 0);
+        const ssTot = alignedData.reduce((sum, d) => sum + Math.pow(d.sales - INTELLIGENCE.averageSales, 2), 0);
+        INTELLIGENCE.modelR2 = 1 - (ssRes / ssTot);
+
+        // SAVE POINTS FOR CHART
+        INTELLIGENCE.regressionPoints = alignedData.map(d => ({ x: d.temp, y: d.sales }));
+        
+        // ERROR METRICS
+        let absError = 0;
+        alignedData.forEach(d => {
+            const pred = INTELLIGENCE.tempSlope * d.temp + INTELLIGENCE.tempIntercept;
+            absError += Math.abs(d.sales - pred);
+        });
+        
+        INTELLIGENCE.mae = absError / n;
+        INTELLIGENCE.mape = (absError / n / INTELLIGENCE.averageSales) * 100;
+        
+        const stdDev = Math.sqrt(ssTot / n);
+        INTELLIGENCE.volatility = (stdDev / INTELLIGENCE.averageSales) * 100;
+    }
+
+    function analyzeProductPerformance(flavorData) {
+        const labelKey = Object.keys(flavorData[0]).find(k => k.match(/flavor|name/i));
+        const valueKey = Object.keys(flavorData[0]).find(k => k.match(/units|sold/i));
+        const map = {};
+        let total = 0;
+        flavorData.forEach(r => {
+            const k = (r[labelKey]||'').trim().toUpperCase();
+            const val = parseFloat(r[valueKey])||0;
+            map[k] = (map[k] || {name: (r[labelKey]||'').trim(), val: 0});
+            map[k].val += val;
+            total += val;
+        });
+        
+        const sorted = Object.values(map).sort((a,b) => b.val - a.val);
+        INTELLIGENCE.topFlavor = sorted[0].name;
+        INTELLIGENCE.topFlavorRevenue = sorted[0].val;
+        INTELLIGENCE.secondFlavor = sorted[1]?.name;
+        INTELLIGENCE.totalRevenue = total * 5; 
+        
+        const marketShares = sorted.map(item => (item.val / total) * 100);
+        const hhi = marketShares.reduce((sum, share) => sum + Math.pow(share, 2), 0);
+        INTELLIGENCE.marketConcentration = hhi > 2500 ? 'High' : hhi > 1500 ? 'Moderate' : 'Low';
+    }
+
+    function detectPatterns(timelineData) {
+        const salesKey = Object.keys(timelineData[0]).find(k => k.toLowerCase().includes('sales'));
+        const sales = timelineData.map(r => parseFloat(String(r[salesKey]).replace(/[^0-9.]/g,'')));
+        
+        const firstHalf = sales.slice(0, Math.floor(sales.length/2));
+        const secondHalf = sales.slice(Math.floor(sales.length/2));
+        const avgFirst = firstHalf.reduce((a,b)=>a+b,0) / firstHalf.length;
+        const avgSecond = secondHalf.reduce((a,b)=>a+b,0) / secondHalf.length;
+        const trendStrength = ((avgSecond - avgFirst) / avgFirst) * 100;
+        
+        INTELLIGENCE.patterns.push({
+            type: 'Trend',
+            direction: trendStrength > 5 ? 'Growing' : trendStrength < -5 ? 'Declining' : 'Stable',
+            strength: Math.abs(trendStrength).toFixed(1) + '%',
+            icon: ICONS.trend(trendStrength)
+        });
+        
+        INTELLIGENCE.patterns.push({
+            type: 'Volatility',
+            level: INTELLIGENCE.volatility > 30 ? 'High' : INTELLIGENCE.volatility > 15 ? 'Moderate' : 'Low',
+            value: INTELLIGENCE.volatility.toFixed(1) + '%',
+            icon: INTELLIGENCE.volatility > 30 ? '⚠️' : '📊'
+        });
+    }
+
+    function calculateRiskProfile() {
+        let riskFactors = [];
+        const modelFitPct = INTELLIGENCE.modelR2 * 100;
+        if (modelFitPct < 60) riskFactors.push({ factor: 'Weak Model Fit (Low R²)', severity: 'high', impact: 20, description: 'Temperature explains < 60% of sales' });
+        if (INTELLIGENCE.mape > 20) riskFactors.push({ factor: 'High Forecast Error', severity: 'medium', impact: 15, description: `Avg error ${INTELLIGENCE.mape.toFixed(1)}%` });
+        if (INTELLIGENCE.marketConcentration === 'High') riskFactors.push({ factor: 'High Market Concentration', severity: 'medium', impact: 15, description: 'Dependent on single product' });
+        if (INTELLIGENCE.volatility > 25) riskFactors.push({ factor: 'High Sales Volatility', severity: 'medium', impact: 15, description: 'Unpredictable demand' });
+        
+        INTELLIGENCE.riskScore = riskFactors.reduce((sum, f) => sum + f.impact, 0);
+        INTELLIGENCE.riskFactors = riskFactors;
+    }
+
+    function generateRecommendations() {
+        const recs = [];
+        if (INTELLIGENCE.tempSlope > 0) {
+            recs.push({
+                title: `Stock Up on ${INTELLIGENCE.topFlavor} During Heat Waves`, priority: 'critical', impact: 'High Revenue Impact',
+                action: `Increase ${INTELLIGENCE.topFlavor} inventory by 40-50% when forecast exceeds 80°F`,
+                rationale: `Correlation shows ${(INTELLIGENCE.tempSlope * 10).toFixed(0)}% sales jump per 10°F`,
+                roi: '+35%', timeframe: 'Immediate'
+            });
+        }
+        if (INTELLIGENCE.marketConcentration === 'High') {
+            recs.push({
+                title: 'Diversify Product Portfolio', priority: 'high', impact: 'Risk Mitigation',
+                action: `Promote ${INTELLIGENCE.secondFlavor} and introduce variants`, rationale: 'Single product dependency',
+                roi: '-25% Risk', timeframe: '1-2 months'
+            });
+        }
+        INTELLIGENCE.recommendations = recs;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 4. UI RENDERING (ORIGINAL V8 VISUALS)
+    // ═══════════════════════════════════════════════════════════
+    
+    function renderExecutiveSummary() {
+        const zone = document.getElementById('executive-summary');
+        zone.classList.remove('hidden');
+        const riskLevel = INTELLIGENCE.riskScore > 50 ? 'high' : INTELLIGENCE.riskScore > 25 ? 'medium' : 'low';
+        const riskColor = riskLevel === 'high' ? 'rose' : riskLevel === 'medium' ? 'amber' : 'emerald';
+        
+        zone.innerHTML = `
+            <div class="glass-panel p-8 animate-fade-in-up">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-indigo-900/50 flex items-center justify-center text-2xl">📊</div>
+                    <div><h2 class="text-2xl font-bold text-white">Executive Intelligence Summary</h2><p class="text-slate-400 text-sm">Real-time strategic overview</p></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Total Revenue</div>
+                        <div class="stat-number">$${(INTELLIGENCE.totalRevenue || 0).toFixed(0)}</div>
+                        <div class="text-emerald-400 text-sm mt-2 font-semibold">▲ Active Market</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Model Fit (R²)</div>
+                        <div class="stat-number">${(INTELLIGENCE.modelR2 * 100).toFixed(0)}%</div>
+                        <div class="text-xs text-slate-500 mt-2">Error: ±${INTELLIGENCE.mape.toFixed(1)}%</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Risk Score</div>
+                        <div class="stat-number text-${riskColor}-400">${INTELLIGENCE.riskScore}</div>
+                        <div class="mt-2"><span class="risk-badge risk-${riskLevel}">${riskLevel} risk</span></div>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-2">Leader</div>
+                        <div class="text-xl font-bold text-white mt-2 truncate">${INTELLIGENCE.topFlavor || 'N/A'}</div>
+                        <div class="text-sky-400 text-sm mt-2 font-semibold">${ICONS.flavor(INTELLIGENCE.topFlavor||'')} Top Seller</div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function renderStrategyPanel() {
+        const zone = document.getElementById('strategy-zone');
+        if (!INTELLIGENCE.recommendations.length) return;
+        zone.classList.remove('hidden');
+        const topRec = INTELLIGENCE.recommendations[0];
+        
+        zone.innerHTML = `
+            <div class="strategy-card p-8 rounded-xl animate-fade-in-up" style="animation-delay: 0.1s">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center text-4xl border-2 border-indigo-500">${ICONS.action(topRec.priority)}</div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2"><h2 class="text-2xl font-bold text-white">Primary Directive</h2><span class="risk-badge" style="background:#7c3aed;color:#c4b5fd;border-color:#8b5cf6">${topRec.priority}</span></div>
+                            <p class="text-indigo-300">${topRec.impact}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="metric-pill bg-emerald-900/30 border-emerald-700 text-emerald-400"><span>💰</span><span>${topRec.roi}</span></div>
+                        <div class="metric-pill bg-sky-900/30 border-sky-700 text-sky-400"><span>⏱️</span><span>${topRec.timeframe}</span></div>
+                    </div>
+                </div>
+                <div class="bg-black/30 p-6 rounded-lg border border-white/10 mb-6">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-3">${topRec.title}</h3>
+                    <p class="text-white text-lg mb-4">${topRec.action}</p>
+                    <p class="text-slate-300 text-sm"><strong class="text-indigo-400">Rationale:</strong> ${topRec.rationale}</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    ${INTELLIGENCE.recommendations.slice(1, 4).map(rec => `
+                        <div class="action-item">
+                            <div class="flex items-start gap-3 mb-2">
+                                <span class="text-xl">${ICONS.action(rec.priority)}</span>
+                                <div class="flex-1"><div class="text-white font-bold text-sm mb-1">${rec.title}</div><div class="text-slate-400 text-xs">${rec.impact}</div></div>
+                            </div>
+                            <div class="flex gap-2 mt-3"><span class="text-xs px-2 py-1 rounded bg-indigo-900/50 text-indigo-300">${rec.roi}</span></div>
+                        </div>`).join('')}
+                </div>
+            </div>`;
+    }
+
+    function renderRiskAnalysis() {
+        const zone = document.getElementById('risk-zone');
+        if (!INTELLIGENCE.riskFactors || !INTELLIGENCE.riskFactors.length) return;
+        zone.classList.remove('hidden');
+        
+        const riskLevel = INTELLIGENCE.riskScore > 50 ? 'high' : INTELLIGENCE.riskScore > 25 ? 'medium' : 'low';
+        
+        zone.innerHTML = `
+            <div class="glass-panel p-8 animate-fade-in-up" style="animation-delay: 0.2s">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3"><span class="text-3xl">🛡️</span><div><h2 class="text-xl font-bold text-white">Risk Matrix</h2><p class="text-slate-400 text-sm">Vulnerability assessment</p></div></div>
+                    <div class="text-right"><div class="text-slate-400 text-xs uppercase">Aggregate</div><div class="text-3xl font-bold ${riskLevel === 'high' ? 'text-rose-400' : riskLevel === 'medium' ? 'text-amber-400' : 'text-emerald-400'}">${INTELLIGENCE.riskScore}/100</div></div>
+                </div>
+                <div class="space-y-3">
+                    ${INTELLIGENCE.riskFactors.map(f => `
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex items-center justify-between">
+                            <div class="flex-1"><div class="flex items-center gap-3 mb-1"><span class="risk-badge risk-${f.severity}">${f.severity}</span><span class="text-white font-bold">${f.factor}</span></div><p class="text-slate-400 text-sm">${f.description}</p></div>
+                            <div class="text-right"><div class="text-slate-500 text-xs">Impact</div><div class="text-2xl font-bold text-rose-400">${f.impact}</div></div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+    }
+
+    function renderPatternInsights() {
+        const zone = document.getElementById('pattern-zone');
+        if (!INTELLIGENCE.patterns.length) return;
+        zone.classList.remove('hidden');
+        
+        zone.innerHTML = `
+            <div class="glass-panel p-8 animate-fade-in-up" style="animation-delay: 0.3s">
+                <div class="flex items-center gap-3 mb-6"><span class="text-3xl">🔍</span><div><h2 class="text-xl font-bold text-white">Pattern Recognition</h2><p class="text-slate-400 text-sm">Detected behaviors</p></div></div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    ${INTELLIGENCE.patterns.map(p => `
+                        <div class="bg-gradient-to-br from-slate-900/80 to-slate-800/50 p-6 rounded-lg border border-slate-700">
+                            <div class="flex items-center justify-between mb-3"><span class="text-3xl">${p.icon}</span><span class="text-2xl font-bold text-sky-400">${p.value}</span></div>
+                            <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">${p.type}</div>
+                            <div class="text-white font-bold text-lg">${p.level || p.direction}</div>
+                        </div>`).join('')}
+                </div>
+            </div>`;
+    }
+
+    function renderCorrelationMatrix(datasets) {
+        const zone = document.getElementById('correlation-zone');
+        if (datasets.length < 2) return;
+        zone.classList.remove('hidden');
+        const corr = INTELLIGENCE.modelR2 * 100;
+        
+        zone.innerHTML = `
+            <div class="glass-panel p-8 animate-fade-in-up" style="animation-delay: 0.4s">
+                <div class="flex items-center gap-3 mb-6"><span class="text-3xl">🎯</span><div><h2 class="text-xl font-bold text-white">Correlation Matrix</h2><p class="text-slate-400 text-sm">Cross-dimensional strength</p></div></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase mb-2">Temp → Sales</div>
+                        <div class="text-3xl font-bold" style="color:${corr>70?'#10b981':corr>40?'#f59e0b':'#ef4444'}">${corr.toFixed(0)}%</div>
+                        <div class="text-xs text-slate-500">${corr>70?'Strong':corr>40?'Moderate':'Weak'} correlation</div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function renderAnomalyDetection() {
+        if (INTELLIGENCE.volatility < 25) return;
+        const zone = document.getElementById('anomaly-zone');
+        zone.classList.remove('hidden');
+        zone.innerHTML = `
+            <div class="glass-panel p-8 animate-fade-in-up" style="animation-delay: 0.5s">
+                <div class="flex items-center gap-3 mb-6"><span class="text-3xl">⚠️</span><div><h2 class="text-xl font-bold text-white">Anomaly Detection</h2><p class="text-slate-400 text-sm">Unusual patterns</p></div></div>
+                <div class="bg-amber-900/20 border border-amber-700 p-6 rounded-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl">📉</div>
+                        <div class="flex-1"><div class="text-amber-400 font-bold text-lg mb-2">High Volatility Detected</div><p class="text-slate-300 mb-3">Sales variance of ${INTELLIGENCE.volatility.toFixed(1)}% indicates unpredictable patterns.</p></div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    async function runAdvancedForecast() {
+        const url = "https://api.open-meteo.com/v1/forecast?latitude=-33.92&longitude=18.42&daily=temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto&forecast_days=7";
+        try {
+            const res = await fetch(url);
+            const json = await res.json();
+            const zone = document.getElementById('prediction-zone');
+            zone.classList.remove('hidden');
+            
+            let totalPredicted = 0;
+            const cards = json.daily.time.map((t, i) => {
+                const temp = json.daily.temperature_2m_max[i];
+                const rev = (INTELLIGENCE.tempSlope * temp) + INTELLIGENCE.tempIntercept;
+                totalPredicted += rev;
+                const date = new Date(t).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'});
+                return `
+                    <div class="flex flex-col items-center p-5 bg-gradient-to-br from-slate-900/80 to-slate-800/50 rounded-xl border border-slate-700 hover:border-sky-500 hover:shadow-lg transition-all transform hover:scale-105">
+                        <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2">${date}</span>
+                        <div class="text-4xl my-3">${ICONS.weather(json.daily.weathercode[i])}</div>
+                        <span class="${temp>85?'text-rose-400':'text-sky-400'} font-bold text-xl">${Math.round(temp)}°F</span>
+                        <div class="w-full h-px bg-slate-700 my-3"></div>
+                        <span class="text-emerald-400 font-bold text-lg">$${rev.toFixed(0)}</span>
+                    </div>`;
+            }).join('');
+
+            zone.innerHTML = `
+                <div class="insight-card p-8 rounded-xl animate-fade-in-up">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-3"><span class="text-3xl">🔮</span><div><h2 class="text-2xl font-bold text-white">7-Day Forecast</h2><p class="text-slate-400 text-sm">Predictive revenue modeling</p></div></div>
+                        <div class="text-right"><div class="text-slate-500 text-xs uppercase">Projected</div><div class="text-2xl font-bold text-emerald-400">$${totalPredicted.toFixed(0)}</div></div>
+                    </div>
+                    <div class="grid grid-cols-3 md:grid-cols-7 gap-3">${cards}</div>
+                </div>`;
+        } catch(e) { console.error('Forecast error:', e); }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 5. VISUALIZATION ENGINE (WITH SCATTER PLOT)
+    // ═══════════════════════════════════════════════════════════
+    
+    function createWidget(type, rawData) {
+        const board = document.getElementById('charts-zone');
+        let chartConfig = {};
+        let insightHTML = '';
+        
+        const chartId = 'chart-' + Math.random().toString(36).substr(2, 9);
+
+        // --- CORRELATION SCATTER PLOT ---
+        if (type === 'Correlation') {
+            const pts = INTELLIGENCE.regressionPoints;
+            const minX = Math.min(...pts.map(p=>p.x)) - 5;
+            const maxX = Math.max(...pts.map(p=>p.x)) + 5;
+            const lineStart = { x: minX, y: INTELLIGENCE.tempSlope * minX + INTELLIGENCE.tempIntercept };
+            const lineEnd = { x: maxX, y: INTELLIGENCE.tempSlope * maxX + INTELLIGENCE.tempIntercept };
+
+            insightHTML = `
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3"><span class="text-4xl">📉</span><div><div class="text-rose-400 font-bold text-lg">Temp vs Revenue</div><div class="text-xs text-slate-500">R² = ${(INTELLIGENCE.modelR2*100).toFixed(1)}%</div></div></div>
+                </div>`;
+
+            chartConfig = {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Sales', data: pts, backgroundColor: '#818cf8', borderColor: '#1e293b', borderWidth: 1, pointRadius: 5 },
+                        { type: 'line', label: 'Trend', data: [lineStart, lineEnd], borderColor: '#f43f5e', borderWidth: 2, pointRadius: 0, borderDash: [5,5] }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', position: 'bottom', title:{display:true, text:'Temperature (°F)', color:'#64748b'}, grid: { color: '#1e293b' } }, y: { title:{display:true, text:'Revenue ($)', color:'#64748b'}, grid: { color: '#1e293b' } } }, plugins: { legend: { display: false } } }
+            };
+        }
+        else if (type === 'Timeline') {
+            const dateKey = Object.keys(rawData[0]).find(k => k.match(/date/i));
+            const salesKey = Object.keys(rawData[0]).find(k => k.match(/sales|revenue/i));
+            const labels = rawData.map(r => decodeDate(r[dateKey]));
+            const values = rawData.map(r => parseFloat(String(r[salesKey]).replace(/[^0-9.]/g,'')));
+            
+            insightHTML = `<div class="flex items-center gap-3 mb-6"><span class="text-4xl">📈</span><div><div class="text-sky-400 font-bold text-lg">Sales Velocity</div><div class="text-xs text-slate-500">Revenue Trajectory</div></div></div>`;
+            chartConfig = { type: 'line', data: { labels, datasets: [{ label: 'Sales', data: values, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' } } }, plugins: { legend: { display: false } } } };
+        }
+        else if (type === 'Flavor') {
+            const labelKey = Object.keys(rawData[0]).find(k => k.match(/flavor|name/i));
+            const valueKey = Object.keys(rawData[0]).find(k => k.match(/units|sold/i));
+            const map = {};
+            rawData.forEach(r => { const k = (r[labelKey]||'').trim().toUpperCase(); map[k] = (map[k]||0) + (parseFloat(r[valueKey])||0); });
+            const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+            
+            insightHTML = `<div class="flex items-center gap-3 mb-6"><span class="text-4xl">🍦</span><div><div class="text-amber-400 font-bold text-lg">Product Mix</div><div class="text-xs text-slate-500">Top: ${sorted[0][0]}</div></div></div>`;
+            chartConfig = { type: 'bar', data: { labels: sorted.map(s=>s[0]), datasets: [{ label: 'Units', data: sorted.map(s=>s[1]), backgroundColor: sorted.map((_,i)=>i===0?'#f59e0b':'#475569') }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' } } }, plugins: { legend: { display: false } } } };
+        }
+
+        const div = document.createElement('div');
+        div.className = 'glass-panel p-6 shadow-2xl flex flex-col h-[450px]';
+        div.innerHTML = `${insightHTML}<div class="flex-1 w-full relative"><canvas id="${chartId}"></canvas></div>`;
+        board.appendChild(div);
+        setTimeout(() => new Chart(document.getElementById(chartId).getContext('2d'), chartConfig), 100);
+    }
+    
+    function exportToExcel() {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([["METRIC", "VALUE"], ["Revenue", INTELLIGENCE.totalRevenue], ["R2", INTELLIGENCE.modelR2], ["Risk", INTELLIGENCE.riskScore]]);
+        XLSX.utils.book_append_sheet(wb, ws, "Forensic Report");
+        XLSX.writeFile(wb, "Forensic_Report.xlsx");
+    }
+
 </script>
 </body>
 </html>
